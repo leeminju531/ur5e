@@ -92,19 +92,7 @@ move_group.stop()
 
 raw_input() 
 
-joint_goal[0] = np.deg2rad(-37.5)
-joint_goal[1] = np.deg2rad(-92.74)
-joint_goal[2] = np.deg2rad(-118.84)
-joint_goal[3] = np.deg2rad(-54.97)
-joint_goal[4] = np.deg2rad(86.95)
-joint_goal[5] = np.deg2rad(-36.09)
 
-plan = move_group.plan(joint_goal)
-move_group.execute(plan, wait=True)
-move_group.stop()
-
-
-# 
 
 
 

@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   tf2
+  std_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -212,3 +213,23 @@ add_executable(tf_broadcaster src/tf_broadcaster.cpp)
 target_link_libraries(tf_broadcaster
    ${catkin_LIBRARIES} 
  )
+
+add_executable(tf_broadcaster_urbase_ylidar src/tf_broadcaster_urbase_ylidar.cpp)
+target_link_libraries(tf_broadcaster_urbase_ylidar
+   ${catkin_LIBRARIES} 
+ )
+
+add_executable(tf_broadcaster_targetframe src/tf_broadcaster_targetframe.cpp)
+target_link_libraries(tf_broadcaster_targetframe
+   ${catkin_LIBRARIES} 
+ )
+
+add_executable(tf_listener_targetpose src/tf_listener_targetpose.cpp)
+target_link_libraries(tf_listener_targetpose
+   ${catkin_LIBRARIES} 
+ )
+add_executable(temp_cam_node src/temp_cam_node.cpp)
+target_link_libraries(temp_cam_node
+   ${catkin_LIBRARIES} 
+ )
+

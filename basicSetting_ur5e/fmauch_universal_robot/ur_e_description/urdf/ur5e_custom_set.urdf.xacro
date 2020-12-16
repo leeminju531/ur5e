@@ -15,10 +15,25 @@
     />
 
   <link name="world" />
+  <link name="real_base_link"/>
+  <link name="real_ee_link"/>
+
+
+  <joint name="base_joint" type="fixed">
+    <parent link="real_base_link" />
+    <child link = "base_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 3.1415" />
+  </joint>
+
+  <joint name="ee_joint" type="fixed">
+    <parent link="ee_link" />
+    <child link = "real_ee_link" />
+    <origin xyz="0.0 0.0 0.0" rpy="-1.5707 0.0 -1.5707" />
+  </joint>  
 
   <joint name="table_joint" type="fixed">
     <parent link="table" />
-    <child link = "base_link" />
+    <child link = "real_base_link" />
     <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
   </joint>
 

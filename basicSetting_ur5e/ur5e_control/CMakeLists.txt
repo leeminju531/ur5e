@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   ur_robot_driver
+  lidar2ur_tf
 )
 
 ## System dependencies are found with CMake's conventions

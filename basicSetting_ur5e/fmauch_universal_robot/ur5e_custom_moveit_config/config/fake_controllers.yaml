@@ -10,6 +10,6 @@ controller_list:
   - name: fake_hand_controller
     joints:
       []
-initial:  # Define initial robot poses.
+# initial:  # Define initial robot poses.
 #  - group: mainpulator
 #    pose: home
