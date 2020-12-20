@@ -12,14 +12,29 @@ import numpy as np
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
+from tf.transformations import *
+from geometry_msgs.msg import Quaternion
+from geometry_msgs.msg import Pose2D
 
+PI = 3.141592
+table = 0.8
+target_X = 0
+target_Y = 0
+target_TH = 0
+subFlag = False
 
+def updateTargetPose(data):
+	global subFlag,target_X,target_Y,target_TH
 
-def callback(data):
-	print ("x : %f || y: %f \n",data.x,data.y)
-
-
-
+	if subFlag == True:
+		#print ("x : %f || y: %f \n",data.x,data.y)
+		target_X = data.x 
+		target_Y = data.y
+		target_TH = data.theta
+	else :
+		target_X = 0
+		target_Y = 0
+		target_TH = 0
 
 #initialize node
 moveit_commander.roscpp_initialize(sys.argv)
@@ -38,7 +53,7 @@ move_group = moveit_commander.MoveGroupCommander(group_name)
 #publisher for display in RVIZ
 display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path', moveit_msgs.msg.DisplayTrajectory, queue_size=20)
 
-rospy.Subscriber("tf/target_pose", Pose2D, callback)
+
 
 # We can get the name of the reference frame for this robot:
 planning_frame = move_group.get_planning_frame()
@@ -58,73 +73,366 @@ print "============ Printing robot state"
 print robot.get_current_state()
 print ""
 
-raw_input() 
 
-pose_goal = move_group.get_current_pose()
-print pose_goal
-print "pose getting"
+rospy.Subscriber("tf/target_pose",Pose2D,updateTargetPose)
 
 
 
 
+move_group.set_max_velocity_scaling_factor(0.09)
+move_group.set_max_acceleration_scaling_factor(0.09)
 
 
 
+# init posture : joint goal -> to avoid singularity 
+def settingInitPosture():
+	
+	joint_goal = move_group.get_current_joint_values()
+	joint_goal[0] = np.deg2rad(0)
+	joint_goal[1] = np.deg2rad(-90)
+	joint_goal[2] = np.deg2rad(0)
+	joint_goal[3] = np.deg2rad(-90)
+	joint_goal[4] = np.deg2rad(0)
+	joint_goal[5] = np.deg2rad(0)
+	joint = move_group.set_joint_value_target(joint_goal)
+	plan = move_group.plan(joint)
+	move_group.execute(plan, wait=True)
+	move_group.stop()
+	
+
+	joint_goal = move_group.get_current_joint_values()
+	joint_goal[0] = np.deg2rad(55)
+	joint_goal[1] = np.deg2rad(-90)
+	joint_goal[2] = np.deg2rad(0)
+	joint_goal[3] = np.deg2rad(-90)
+	joint_goal[4] = np.deg2rad(0)
+	joint_goal[5] = np.deg2rad(0)
+	joint = move_group.set_joint_value_target(joint_goal)
+	plan = move_group.plan(joint)
+	move_group.execute(plan, wait=True)
+	move_group.stop()
+
+	# joint_goal = move_group.get_current_joint_values()
+	# joint_goal[0] = np.deg2rad(55)
+	# joint_goal[1] = np.deg2rad(-97)
+	# joint_goal[2] = np.deg2rad(118)
+	# joint_goal[3] = np.deg2rad(-90)
+	# joint_goal[4] = np.deg2rad(0)
+	# joint_goal[5] = np.deg2rad(0)
+	# joint = move_group.set_joint_value_target(joint_goal)
+	# plan = move_group.plan(joint)
+	# move_group.execute(plan, wait=True)
+	# move_group.stop()
+
+
+	
+
+#def cartesianPath( currentPosition, targetPosition ):
 
 
 
+def Down_catch_and_up_Bottle():
+	####### setting target pose_goal x ,y ,z ######
+	# this is fixed position !
+	# end-effector location above bottle
+	print("down and catch and up start !! ")
+	
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.553
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.453
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	# end-effector location  head to bottle
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.3906
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	#### glipper close ########
+	print('glipper close')
+	raw_input()
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.453
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+	
 
 
 
+# the ur5e will wait in middle position
+# until box is stable state 
+def middlePos():
+	print('end of grasp !!!, start of middle !')
+	
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.384
+	pose_goal.pose.position.y = -0.3564
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
 
-# grasp vita
-raw_input() 
-joint_goal = move_group.get_current_joint_values()
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.284
+	pose_goal.pose.position.y = -0.4264
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.184
+	pose_goal.pose.position.y = -0.4964
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.143
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = -0.043
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+	
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.017
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+
+	plan = move_group.go(wait=True) ## real plan
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.117
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.217
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.317
+	pose_goal.pose.position.y = -0.541
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+	
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.290
+	pose_goal.pose.position.y = -0.441
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
+
+	pose_goal = move_group.get_current_pose()
+	pose_goal.pose.position.x = 0.276
+	pose_goal.pose.position.y = -0.399
+	pose_goal.pose.position.z = table + 0.552
+	quaternion = quaternion_from_euler( -PI , 0 ,PI/2)
+	pose_goal.pose.orientation.x = quaternion[0]
+	pose_goal.pose.orientation.y = quaternion[1]
+	pose_goal.pose.orientation.z = quaternion[2]
+	pose_goal.pose.orientation.w = quaternion[3]
+	move_group.set_pose_target(pose_goal)
+	plan = move_group.go(wait=True) ## real plan
 
 
-joint_goal[0] = np.deg2rad(-120.86)
-joint_goal[1] = np.deg2rad(-104.15)
-joint_goal[2] = np.deg2rad(-114.03)
-joint_goal[3] = np.deg2rad(-51.83)
-joint_goal[4] = np.deg2rad(87.10)
-joint_goal[5] = np.deg2rad(-36.09)
 
-move_group.execute(plan, wait=True)
-move_group.stop()
+if __name__ == "__main__":
+	rate = rospy.Rate(1) # 10hz
+	print ("state ok ..! push any key to start")
+	raw_input()
+	settingInitPosture()
+
+	# glipper open
+	while(1):
+		if subFlag == False:
+			Down_catch_and_up_Bottle()
+			middlePos()
+			subFlag=True
+
+		elif subFlag == True:
+			print('end of middle , to target position !! ')
+			print("X :",target_X ,"y :" ,target_Y,"th(deg) :",target_TH*180/3.14 )
+		 	if (target_X != 0 and target_Y != 0 ):
+		 		
+		 		print("X :",target_X ,"y :" ,target_Y,"th(deg) :",target_TH*180/3.14 )
+		 		
+
+		 		pose_goal = move_group.get_current_pose()
+		 		pose_goal.pose.position.x = target_X
+		 		pose_goal.pose.position.y = target_Y
+		 		pose_goal.pose.position.z = table + 0.552
+		 		quaternion = quaternion_from_euler( -PI , 0 ,PI/2 + target_TH)
+				pose_goal.pose.orientation.x = quaternion[0]
+				pose_goal.pose.orientation.y = quaternion[1]
+				pose_goal.pose.orientation.z = quaternion[2]
+				pose_goal.pose.orientation.w = quaternion[3]
+		 		move_group.set_pose_target(pose_goal)
+		 		plan = move_group.go(wait=True) ## real plan
+
+		 		pose_goal = move_group.get_current_pose()
+		 		pose_goal.pose.position.x = target_X
+		 		pose_goal.pose.position.y = target_Y
+		 		pose_goal.pose.position.z = table + 0.452
+		 		quaternion = quaternion_from_euler( -PI , 0 ,PI/2 + target_TH)
+				pose_goal.pose.orientation.x = quaternion[0]
+				pose_goal.pose.orientation.y = quaternion[1]
+				pose_goal.pose.orientation.z = quaternion[2]
+				pose_goal.pose.orientation.w = quaternion[3]
+		 		move_group.set_pose_target(pose_goal)
+		 		plan = move_group.go(wait=True) ## real plan
+
+		 		pose_goal = move_group.get_current_pose()
+		 		pose_goal.pose.position.x = target_X
+		 		pose_goal.pose.position.y = target_Y
+		 		pose_goal.pose.position.z = table + 0.3906
+		 		quaternion = quaternion_from_euler( -PI , 0 ,PI/2 + target_TH)
+				pose_goal.pose.orientation.x = quaternion[0]
+				pose_goal.pose.orientation.y = quaternion[1]
+				pose_goal.pose.orientation.z = quaternion[2]
+				pose_goal.pose.orientation.w = quaternion[3]
+		 		move_group.set_pose_target(pose_goal)
+		 		plan = move_group.go(wait=True) ## real plan
+
+		 		print("open glipper")
+		 		
+
+		 		pose_goal = move_group.get_current_pose()
+		 		pose_goal.pose.position.x = target_X
+		 		pose_goal.pose.position.y = target_Y
+		 		pose_goal.pose.position.z = table + 0.452
+		 		quaternion = quaternion_from_euler( -PI , 0 ,PI/2 + target_TH)
+				pose_goal.pose.orientation.x = quaternion[0]
+				pose_goal.pose.orientation.y = quaternion[1]
+				pose_goal.pose.orientation.z = quaternion[2]
+				pose_goal.pose.orientation.w = quaternion[3]
+		 		move_group.set_pose_target(pose_goal)
+		 		plan = move_group.go(wait=True) ## real plan
+
+		 		pose_goal = move_group.get_current_pose()
+		 		pose_goal.pose.position.x = target_X
+		 		pose_goal.pose.position.y = target_Y
+		 		pose_goal.pose.position.z = table + 0.552
+		 		quaternion = quaternion_from_euler( -PI , 0 ,PI/2 + target_TH)
+				pose_goal.pose.orientation.x = quaternion[0]
+				pose_goal.pose.orientation.y = quaternion[1]
+				pose_goal.pose.orientation.z = quaternion[2]
+				pose_goal.pose.orientation.w = quaternion[3]
+		 		move_group.set_pose_target(pose_goal)
+		 		plan = move_group.go(wait=True) ## real plan
+
+		 		print("say good bye !")
+		 		break
+
+			
 
 
 
-raw_input() 
-# waiting until stable state
-
-joint_goal[0] = np.deg2rad(-57.03)
-joint_goal[1] = np.deg2rad(-116.88)
-joint_goal[2] = np.deg2rad(-85.53)
-joint_goal[3] = np.deg2rad(-67.78)
-joint_goal[4] = np.deg2rad(86.27)
-joint_goal[5] = np.deg2rad(-0.15)
-
-move_group.execute(plan, wait=True)
-move_group.stop()
-
-raw_input()
-
-# target pose x ,y , theta setting 
-# by subscribe tf listener
-
-
-pose_goal = move_group.get_current_pose()
-pose_goal.pose.position.z -=0.1
-move_group.set_pose_target(pose_goal)
-print "pose setting"
-
-raw_input()
-
-
-
-
-
-
-
-plan = move_group.go(wait=True)
-move_group.stop()

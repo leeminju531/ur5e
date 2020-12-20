@@ -228,8 +228,5 @@ add_executable(tf_listener_targetpose src/tf_listener_targetpose.cpp)
 target_link_libraries(tf_listener_targetpose
    ${catkin_LIBRARIES} 
  )
-add_executable(temp_cam_node src/temp_cam_node.cpp)
-target_link_libraries(temp_cam_node
-   ${catkin_LIBRARIES} 
- )
+
 

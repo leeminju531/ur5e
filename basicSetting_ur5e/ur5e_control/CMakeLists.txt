@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   ur_robot_driver
   lidar2ur_tf
+  
 )
 
 ## System dependencies are found with CMake's conventions
@@ -207,3 +208,4 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+

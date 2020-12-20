@@ -16,12 +16,15 @@
         <param name="frequency"    type="double" value="10"/>
         <param name="samp_rate"    type="int"    value="5"/>
       </node>
+
+
       <node name="ydlidar_box_pose" pkg="ydlidar_ros" type = "ydlidar_box_pose"/>
+
+      <!--      TF node       -->
       <node name="tf_broadcaster" pkg="lidar2ur_tf" type = "tf_broadcaster"/>
-      <node name="tf_broadcaster_targetframe" pkg="lidar2ur_tf" type = "tf_broadcaster_targetframe" output="screen"/>
+      <node name="tf_broadcaster_targetframe" pkg="lidar2ur_tf" type = "tf_broadcaster_targetframe" />
       <node name="tf_broadcaster_urbase_ylidar" pkg="lidar2ur_tf" type = "tf_broadcaster_urbase_ylidar" />
-      <node name="tf_listener_targetpose" pkg="lidar2ur_tf" type = "tf_listener_targetpose"/>
-      <!-- <include file="$(find ydlidar_ros)/launch/lidar.launch" />
-      <node name="rviz" pkg="rviz" type="rviz" args="-d $(find ydlidar_ros)/launch/lidar.rviz" />-->
+      <node name="tf_listener_targetpose" pkg="lidar2ur_tf" type = "tf_listener_targetpose" output="screen"/> 
+   
  
 </launch>
