@@ -4,6 +4,7 @@
 컨베이어 벨트 위의 비타500 상자는 초음파 센서를 이용하여 벨트가 멈춘다. 벨트가 멈춘 상황을 센싱하여 제작한 그리퍼를 부착한
 ur5e 로봇팔을 이용해 비타500병을 상자의 위치로 옮겨 컨베이어 벨트를 동작시킴으로써 주어진 자동화 공정을 완성하라
 
+[![Video Label](https://user-images.githubusercontent.com/70446214/103126969-63b85280-46d3-11eb-9156-f34cab6b0b71.png)](https://www.youtube.com/watch?v=LEFCSSzv_UU)
 
 
 ### 문제 해결 전략 
