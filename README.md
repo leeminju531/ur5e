@@ -19,7 +19,8 @@ ur5e 로봇팔을 이용해 비타500병을 상자의 위치로 옮겨 컨베이
 두 Frame 간의 관계는 항상 fix 한 경우이기 때문에, UR 의 BASE를 IMAGINARY 한 가상의 Frame으로 대체하여 
 Frame간의 관계를 구축했다.
 
-![image](https://user-images.githubusercontent.com/70446214/102933634-f1cee600-44e5-11eb-9bf6-dcb3d7d2ae70.png)
+![ezgif com-gif-maker (1)](https://user-images.githubusercontent.com/70446214/103130089-9287f600-46de-11eb-9b1b-c0716e632533.gif)
+
 
 2. lidar에 의해 극좌표로 들어오는 센싱값을 LaseFrame 위의 좌표정보로 변환하여, 현재,이전,대과거 의 센싱값으로
 박스의 끝부분을 추출해 BoxFrame을 형성했다.
